@@ -6,7 +6,7 @@
 		"dockerfile": "Dockerfile",
 		// Update 'VARIANT' to pick an Ubuntu version: focal, bionic
 		"args": {
-			"VARIANT": "2.2.0-latest"
+			"VARIANT": "2.3.0-2023.12.03"
 		}
 	},
 	// Set *default* container specific settings.json values on container create.
@@ -16,7 +16,8 @@
 				"ms-python.python",
 				"littlefoxteam.vscode-python-test-adapter",
 				"ms-python.flake8",
-				"rioj7.command-variable"
+				"rioj7.command-variable",
+				"ms-azuretools.vscode-docker"
 			],
 			// set some specific settings
 			"settings": {
