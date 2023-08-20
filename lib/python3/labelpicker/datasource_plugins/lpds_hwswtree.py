@@ -41,7 +41,7 @@ class lpds_hwswtree(Strategy):
         inventory_dir = kwargs.get("inventory_dir", None)
         if not inventory_dir:
             inventory_dir = os.environ["HOME"] + "/var/check_mk/inventory"
-        debug = False
+        debug = True
         parsed = {}
         if debug:
             print(
@@ -49,7 +49,13 @@ class lpds_hwswtree(Strategy):
             )
 
         # iterate over all files in inventory_dir and evaluate them
-        for host in os.listdir(inventory_dir):
+        try:
+            all_inv_hosts = os.listdir(inventory_dir)
+        except FileNotFoundError as e:
+            print(f"Path {inventory_dir} not existing: {e}")
+            return
+
+        for host in all_inv_hosts:
             if not re.match("(^\.|.*\.gz$)", host):
                 if debug:
                     print(f"DEBUG: Parsing {host}")
@@ -107,6 +113,10 @@ class lpds_hwswtree(Strategy):
     def process_algorithm(self, source_data, **kwargs) -> dict:
         """Process source data and return dict
         with host as key and labels as value"""
+        if not source_data:
+            print("No source data found")
+            return {}
+
         collected_labels = {}
         mapping = kwargs.get("mapping", None)
         if not mapping:
