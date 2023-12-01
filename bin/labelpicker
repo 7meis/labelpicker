@@ -9,7 +9,7 @@
 from labelpicker.base.labelpicker import LabelDataProcessor
 from labelpicker.base.checkmk import CMKInstance
 from labelpicker.misc.bgcolor import bgcolor
-from labelpicker.misc.label import LabelHelper
+from labelpicker.misc.label_helper import LabelHelper
 from labelpicker.labelpicker_base import Config
 
 import pprint
