@@ -7,10 +7,8 @@
 # Thanks to:
 # Abraxas Informatik AG: This Datasource Plugin was developed in cooperation with the "Abraxas Informatik AG".
 
-
-from lib.python3.labelpicker.base.labelpicker import Strategy
-
 from integration.vsphere import vSphereAPI
+from lib.python3.labelpicker.base.labelpicker import Strategy
 
 
 class lpds_vsphere(Strategy):
@@ -32,7 +30,7 @@ class lpds_vsphere(Strategy):
             vm_cache[vm["name"]] = {}
             vm_tags = vsphere_api.get_vm_tags(vm["vm"])
             for vm_tag in vm_tags["value"]:
-                if not vm_tag in tag_cache:
+                if vm_tag not in tag_cache:
                     tag = vsphere_api.get_vsphere_tag(vm_tag)
                     tag_value = tag["value"]["name"]
                     category = vsphere_api.get_tag_category(tag["value"]["category_id"])

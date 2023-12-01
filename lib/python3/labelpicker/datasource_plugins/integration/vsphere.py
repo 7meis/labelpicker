@@ -6,11 +6,11 @@
 
 # Thanks to:
 # Abraxas Informatik AG: This Datasource Plugin was developed in cooperation with the "Abraxas Informatik AG".
+import requests
+import json
 
 # from requests.auth import HTTPBasicAuth
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-import requests
-import json
 
 
 class vSphereAPI:
