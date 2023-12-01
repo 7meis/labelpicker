@@ -7,7 +7,7 @@
 # Thanks to:
 # Abraxas Informatik AG: This Datasource Plugin was developed in cooperation with the "Abraxas Informatik AG".
 
-from labelpicker.labelpicker_base import Strategy
+from lib.python3.labelpicker.base.labelpicker import Strategy
 import json
 import requests
 

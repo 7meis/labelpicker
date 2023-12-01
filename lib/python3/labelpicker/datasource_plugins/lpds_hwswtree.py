@@ -9,11 +9,10 @@
 # LHM (Landeshauptstadt Muenchen): This Datasource Plugin was developed in cooperation with the "Eigenbetrieb it@M" of the City of Munich.
 
 
-from labelpicker.labelpicker_base import Strategy
+from lib.python3.labelpicker.base.labelpicker import Strategy
 import re
 import os
 import ast
-#from cmk.gui.plugins.views import builtin_inventory_plugins
 
 
 class lpds_hwswtree(Strategy):
@@ -29,10 +28,6 @@ class lpds_hwswtree(Strategy):
             "Default": "0.0.0.0/0",
             "Model Name": "model",
         }
-        # TODO: Use builtin_inventory_plugins.inventory_displayhints for mapping
-        #for item, data in builtin_inventory_plugins.inventory_displayhints.items():
-        #    if "title" in data and type(data["title"]) == str:
-        #        pass
 
         for item in invtree:
             if item in inv_mapping:
@@ -86,7 +81,7 @@ class lpds_hwswtree(Strategy):
         for obj in cmk_inv_objects:
             # If Attributes, Nodes or Table is not in data continue it seems to be a structure of an old cmk version
             # Currently no parser inplemented for this, so skip it
-            if not obj in data:
+            if obj not in data:
                 continue
             if not data[obj] == {}:
                 if obj == "Attributes" and index == deep_inv_tree:
@@ -140,11 +135,11 @@ class lpds_hwswtree(Strategy):
                     match_group_filters = definition.get("match_group_filters", None)
                     if match_group_filters:
                         for filter in match_group_filters:
-                            if type(filter) is str:
+                            if isinstance(filter) is str:
                                 # if filter is a string, switch to simple match -> first group
                                 regex = filter
                                 re_modified = r"\1"
-                            elif type(filter) is list:
+                            elif isinstance(filter) is list:
                                 # if filter is a list, use first element as regex and second element as modified regex
                                 regex = filter[0]
                                 re_modified = filter[1]

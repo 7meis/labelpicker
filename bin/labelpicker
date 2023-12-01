@@ -6,8 +6,10 @@
 # This file is part of the Checkmk Labelpicker project (https://labelpicker.mk)
 # Inspired by Robert Sander's tool: data2label
 
-import labelpicker.labelpicker_base as lpb
-from labelpicker.labelpicker_base import bcolor
+from labelpicker.base.labelpicker import LabelDataProcessor
+from labelpicker.base.checkmk import CMKInstance
+from labelpicker.misc.bgcolor import bgcolor
+from labelpicker.misc.label import LabelHelper
 from labelpicker.labelpicker_base import Config
 
 import pprint
@@ -33,7 +35,7 @@ def parse_args():
     )
     parser.add_argument(
         "-t",
-        "--testmode",
+        "--test",
         action="store_true",
         help="Testmode - no config changes will be applied",
     )
@@ -45,16 +47,11 @@ def parse_args():
     return parser.parse_args()
 
 
-def print_err(msg):
-    print(msg, file=sys.stderr)
-    sys.exit(1)
-
-
 if __name__ == "__main__":
     args = parse_args()
-    bc = bcolor()
+    bc = bgcolor()
     h1_suffix = ""
-    if args.testmode:
+    if args.test:
         h1_suffix = " - testmode "
     print(bc.h1(__file__.split("/")[-1] + h1_suffix))
 
@@ -64,13 +61,16 @@ if __name__ == "__main__":
 
     config = config_inst.get_cfg()
 
-    wato = lpb.CMKInstance()
+    # Connect to WATO
+    cmk_instance = CMKInstance()
+
     # Datasources must be placed as python modules
     # ~/local/lib/python3/labelpicker/ds_plugins/
 
     for strategy in config["datasources"].keys():
         print(bc.h2(f"Datasource: {strategy}"))
         strategy_config = config["datasources"][strategy]
+
         # if pymodule name is set, use it instead of strategy name
         ds_module = strategy_config.get("module") or strategy
         try:
@@ -79,16 +79,18 @@ if __name__ == "__main__":
                 f"labelpicker.ds_plugins.{ds_module}"
             )
             datasource_class = getattr(datasource_module, ds_module)
-            label_processor = lpb.LableDataProcessor(datasource_class())
+            label_processor = LabelDataProcessor(datasource_class())
 
         except ImportError:
             # Handle import error
             print(f"🔴 Error importing datasource {ds_module}")
             continue
 
-        # Get source data, return can be different for each strategy, but must be considered in the process algorithm
+        # Get source data, return can be different for each strategy,
+        # but must be considered in the process algorithm
         source_data = label_processor.get(**strategy_config)
         print(f"Source data: {sys.getsizeof(str(source_data))} Bytes")
+
         # Process source data and create label definitions
         label_definitions = label_processor.process(source_data, **strategy_config)
         print(f"Label definitions for {len(label_definitions)} hosts")
@@ -99,28 +101,33 @@ if __name__ == "__main__":
             "case_conversion"
         )
         if case_conversion_method:
-            label_definitions = lpb.case_conversion(
+            label_definitions = LabelHelper._case_conversion(
                 label_definitions, case_conversion_method, prefix
             )
 
         # Apply label definitions to checkmk instance
         changes = False
         statistics = {"hosts_in_cmk": [], "hosts_not_in_cmk": []}
-        cmk_all_hosts = wato.get_all_hosts()
+        cmk_all_hosts = cmk_instance.get_all_hosts()
         for host in label_definitions:
             if host in cmk_all_hosts:
                 statistics["hosts_in_cmk"].append(host)
-                # Try to get current labels from cmk_all_hosts if key label does not exist, expect no labels defined and return empty dict
-                # All other KeyError will be catched and data structure will be logged
+
+                # Try to get current labels from cmk_all_hosts if key label
+                # does not exist, expect no labels defined and return empty
+                # dict. All other KeyError will be caught and data structure
+                # will be logged
                 try:
                     current_labels = cmk_all_hosts[host]["attributes"].get("labels", {})
                 except KeyError:
                     pprint.pprint(cmk_all_hosts[host])
                     continue
-                # Call update labels function (orig_labels, labels, label_prefix)
+
+                # Call update labels function
+                # (orig_labels, labels, label_prefix)
                 # Returns dict with updated labels
                 if args.cleanup:
-                    updated_labels = wato.update_labels(
+                    updated_labels = cmk_instance.update_labels(
                         current_labels,
                         label_definitions[host],
                         strategy_config["label_prefix"],
@@ -128,15 +135,15 @@ if __name__ == "__main__":
                         enforce_cleanup=True,
                     )
                 else:
-                    updated_labels = wato.update_labels(
+                    updated_labels = cmk_instance.update_labels(
                         current_labels,
                         label_definitions[host],
                         strategy_config["label_prefix"],
                     )
                 if current_labels != updated_labels:
                     changes = True
-                    if not args.testmode:
-                        wato.set_hostlabels(host, updated_labels)
+                    if not args.test:
+                        cmk_instance.set_host_labels(host, updated_labels)
                         print(f"Labels for host {host} updated")
                     else:
                         print(f"Labels for host {host} will be updated")
@@ -146,18 +153,20 @@ if __name__ == "__main__":
 
         if statistics["hosts_not_in_cmk"]:
             print(f"🟡 {len(statistics['hosts_not_in_cmk'])} Hosts NOT in Checkmk")
+            for host in statistics["hosts_in_cmk"]:
+                print(f"Host: {host} is not in Checkmk")
         else:
             print(f"🟢 {len(statistics['hosts_in_cmk'])} (all) Hosts in Checkmk")
 
-        if not args.testmode and changes:
+        if not args.test and changes:
             afc = "activate_foreign_changes"
             if afc in config and config[afc]:
-                ret = wato.activate(force=True)
+                ret = cmk_instance.activate(force=True)
             else:
-                ret = wato.activate()
+                ret = cmk_instance.activate()
             try:
                 if ret["title"].startswith("Activation"):
-                    print(f"🟢 Activate changes")
+                    print("🟢 Activate changes")
             except Exception:
-                print(f"🔺 Activate changes failed")
+                print("🔺 Activate changes failed")
                 pprint.pprint(ret)

@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # This file is part of the Checkmk Labelpicker project (https://labelpicker.mk)
 
-from labelpicker.labelpicker_base import Strategy
+from lib.python3.labelpicker.base.labelpicker import Strategy
 import os
 import csv
 
