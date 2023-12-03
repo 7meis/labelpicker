@@ -116,7 +116,6 @@ class CMKInstance:
             "domain-types/activation_run/actions/activate-changes/invoke",
             etag="*",
             data=post_data,
-            etag="*",
         )
         if resp.status_code == 200:
             return data
