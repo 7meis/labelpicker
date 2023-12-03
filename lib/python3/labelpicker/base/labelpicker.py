@@ -6,7 +6,7 @@
 # This file is part of the Checkmk Labelpicker project (https://labelpicker.mk)
 
 
-from misc.abstract_strategy import Strategy
+from labelpicker.misc.abstract_strategy import Strategy
 
 
 class LabelDataProcessor:
