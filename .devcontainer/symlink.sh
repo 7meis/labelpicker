@@ -15,4 +15,4 @@ rm -rfv $OMD_ROOT/local/bin
 ln -sv $WORKSPACE/bin $OMD_ROOT/local/bin
 
 # Reset password of default user
-htpasswd -b $OMD_ROOT/etc/htpasswd cmkadmin cmkadmin
+source /omd/sites/cmk/.profile && echo 'cmkadmin' | /omd/sites/cmk/bin/cmk-passwd -i cmkadmin
