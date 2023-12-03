@@ -6,10 +6,10 @@
 # This file is part of the Checkmk Labelpicker project (https://labelpicker.mk)
 
 # Thanks to:
-# LHM (Landeshauptstadt Muenchen): This Datasource Plugin was developed in cooperation with the "Eigenbetrieb it@M" of the City of Munich.
+# LHM (Landeshauptstadt Muenchen): This Datasource Plugin was developed in
+# cooperation with the "Eigenbetrieb it@M" of the City of Munich.
 
-
-from lib.python3.labelpicker.base.labelpicker import Strategy
+from labelpicker.misc.abstract_strategy import Strategy
 import re
 import os
 import ast
