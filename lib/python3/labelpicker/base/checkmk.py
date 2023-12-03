@@ -14,20 +14,6 @@ import os
 class CMKInstance:
     """Interact with checkmk instance"""
 
-    def _get_automation_secret(username="automation"):
-        """Get automation secret for the given user.
-        Default user is automation"""
-
-        omd_root = os.environ["OMD_ROOT"]
-
-        # If automationsecret file for user exists, read credentials from there
-        secret_file = f"{omd_root}/var/check_mk/web/{username}/automation.secret"
-        if os.path.exists(secret_file):
-            secret = open(secret_file).read().strip()
-            return secret
-        else:
-            return False
-
     def __init__(self, url=None, username="automation", password=None):
         """Initialize a REST-API instance. URL, User and Secret can be automatically taken from local site if running as site user.
 
@@ -67,6 +53,20 @@ class CMKInstance:
         self._session = requests.session()
         self._session.headers["Authorization"] = f"Bearer {username} {secret}"
         self._session.headers["Accept"] = "application/json"
+
+    def _get_automation_secret(self, username="automation"):
+        """Get automation secret for the given user.
+        Default user is automation"""
+
+        omd_root = os.environ["OMD_ROOT"]
+
+        # If automationsecret file for user exists, read credentials from there
+        secret_file = f"{omd_root}/var/check_mk/web/{username}/automation.secret"
+        if os.path.exists(secret_file):
+            secret = open(secret_file).read().strip()
+            return secret
+        else:
+            return False
 
     def _trans_resp(self, resp):
         try:
