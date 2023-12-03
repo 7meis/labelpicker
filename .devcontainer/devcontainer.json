@@ -15,9 +15,8 @@
 			"extensions": [
 				"ms-python.python",
 				"littlefoxteam.vscode-python-test-adapter",
-				"rioj7.command-variable",
-				"ms-azuretools.vscode-docker",
-				"charliermarsh.ruff"
+				"ms-python.flake8",
+				"rioj7.command-variable"
 			],
 			// set some specific settings
 			"settings": {
