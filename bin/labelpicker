@@ -6,11 +6,11 @@
 # This file is part of the Checkmk Labelpicker project (https://labelpicker.mk)
 # Inspired by Robert Sander's tool: data2label
 
-from labelpicker.base.labelpicker import LabelDataProcessor
+from labelpicker.base.label_processor import LabelDataProcessor
 from labelpicker.base.checkmk import CMKInstance
 from labelpicker.misc.bgcolor import bgcolor
 from labelpicker.misc.label_helper import LabelHelper
-from labelpicker.labelpicker_base import Config
+from labelpicker.misc.config import Config
 
 import pprint
 import argparse
@@ -76,14 +76,14 @@ if __name__ == "__main__":
         try:
             # Import & load datasource module
             datasource_module = importlib.import_module(
-                f"labelpicker.ds_plugins.{ds_module}"
+                f"labelpicker.datasource_plugins.{ds_module}"
             )
             datasource_class = getattr(datasource_module, ds_module)
             label_processor = LabelDataProcessor(datasource_class())
 
         except ImportError:
             # Handle import error
-            print(f"🔴 Error importing datasource {ds_module}")
+            raise ImportError("🔴 Error importing datasource")
             continue
 
         # Get source data, return can be different for each strategy,
