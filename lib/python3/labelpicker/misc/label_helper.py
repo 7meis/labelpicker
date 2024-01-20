@@ -4,9 +4,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # This file is part of the Checkmk Labelpicker project (https://labelpicker.mk)
 
-class LabelHelper:
+"""Class for label Util functions."""
 
+class LabelHelper:
+    """Label Utils."""
     def _case_conversion(label_definitions, params, prefix) -> dict:
+        """Function handles case conversions."""
         converted = {}
         for host, data in label_definitions.items():
             converted[host] = {}

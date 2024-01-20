@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # This file is part of the Checkmk Labelpicker project (https://labelpicker.mk)
 
+"""Class to handle labelpicker config."""
+
 import os
 import base64
 import zlib
@@ -15,6 +17,7 @@ class Config:
     """Read config data."""
 
     def __init__(self, config_file):
+        """Initialize Config."""
         if config_file is True:
             # Use default config file
             omd_root = os.environ["OMD_ROOT"]
