@@ -9,8 +9,8 @@
 # Thanks to:
 # Abraxas Informatik AG: This Datasource Plugin was developed in cooperation with the "Abraxas Informatik AG".
 
-from labelpicker.misc.abstract_strategy import Strategy
-from integration.vsphere import VSphereAPI
+from lib.python3.labelpicker.misc.strategy import Strategy
+from lib.python3.labelpicker.datasource_plugins.integration.vsphere_api import VSphereAPI
 
 
 class LPDSvSphere(Strategy):

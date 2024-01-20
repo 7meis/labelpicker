@@ -10,7 +10,7 @@
 
 """Implementation of HWSWTree strategy."""
 
-from labelpicker.misc.abstract_strategy import Strategy
+from lib.python3.labelpicker.misc.strategy import Strategy
 import re
 import os
 import ast

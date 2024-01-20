@@ -6,7 +6,7 @@
 
 """Implements coloring for console output."""
 
-class bgcolor:
+class BGColor:
     """Class who make Admin's life more colorful."""
     def __init__(self):
         """Used for coloring outputs."""

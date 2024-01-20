@@ -6,7 +6,7 @@
 
 """Implementation for using CSV to set labels."""
 
-from labelpicker.misc.abstract_strategy import Strategy
+from lib.python3.labelpicker.misc.strategy import Strategy
 import os
 import csv
 

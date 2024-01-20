@@ -6,7 +6,7 @@
 
 """This class is responsible for label data processing."""
 
-from labelpicker.misc.abstract_strategy import Strategy
+from lib.python3.labelpicker.misc.strategy import Strategy
 
 
 class LabelDataProcessor:
