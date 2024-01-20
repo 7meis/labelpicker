@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- encoding: utf-8; py-indent-offset: 4 -*-
 
 # SPDX-FileCopyrightText: © 2023 PL Automation Monitoring GmbH <pl@automation-monitoring.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -9,17 +8,19 @@
 # LHM (Landeshauptstadt Muenchen): This Datasource Plugin was developed in
 # cooperation with the "Eigenbetrieb it@M" of the City of Munich.
 
+"""Implementation of HWSWTree strategy."""
+
 from labelpicker.misc.abstract_strategy import Strategy
 import re
 import os
 import ast
 
 
-class lpds_hwswtree(Strategy):
-    """HWSWTree strategy"""
+class LPDSHwSwTree(Strategy):
+    """HWSWTree strategy."""
 
     def _translate_inv_tree(self, invtree):
-        """Set values in invtree list to lowercase and map values if necessary"""
+        """Set values in invtree list to lowercase and map values if necessary."""
         invtree_translated = []
         inv_mapping = {
             "Operating System": "os",
@@ -37,7 +38,7 @@ class lpds_hwswtree(Strategy):
         return invtree_translated
 
     def source_algorithm(self, **kwargs) -> dict:
-        """Parse Hardware/Software inventory data"""
+        """Parse Hardware/Software inventory data."""
         inventory_dir = kwargs.get("inventory_dir", None)
         if not inventory_dir:
             inventory_dir = os.environ["HOME"] + "/var/check_mk/inventory"
@@ -59,7 +60,7 @@ class lpds_hwswtree(Strategy):
             if not re.match("(^\.|.*\.gz$)", host):
                 if debug:
                     print(f"DEBUG: Parsing {host}")
-                with open(f"{inventory_dir}/{host}", "r") as file:
+                with open(f"{inventory_dir}/{host}") as file:
                     content = file.read()
                     try:
                         parsed[host] = ast.literal_eval(content)
@@ -70,8 +71,8 @@ class lpds_hwswtree(Strategy):
         return parsed
 
     def _inspect_inv_dict(self, data, inv_tree, index=0):
-        """Try to get value from data by inv_tree
-        Search for keys Nodes, Attributes, Table
+        """Try to get value from data by inv_tree Search for keys Nodes, Attributes, Table.
+
         If behind this key is NOT an empty dict try to read Attributes or Table values
         Else: try to use the inv_tree key to dig deeper via recursion.
         """
@@ -111,8 +112,7 @@ class lpds_hwswtree(Strategy):
                         pass
 
     def process_algorithm(self, source_data, **kwargs) -> dict:
-        """Process source data and return dict
-        with host as key and labels as value"""
+        """Process source data and return dict with host as key and labels as value."""
         if not source_data:
             print("No source data found")
             return {}

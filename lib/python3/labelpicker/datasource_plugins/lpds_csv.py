@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
-# -*- encoding: utf-8; py-indent-offset: 4 -*-
 
 # SPDX-FileCopyrightText: © 2023 PL Automation Monitoring GmbH <pl@automation-monitoring.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # This file is part of the Checkmk Labelpicker project (https://labelpicker.mk)
+
+"""Implementation for using CSV to set labels."""
 
 from labelpicker.misc.abstract_strategy import Strategy
 import os
 import csv
 
 
-class lpds_csv(Strategy):
-    """CSV strategy"""
+class LPDSCsv(Strategy):
+    """CSV strategy."""
 
     def source_algorithm(self, **kwargs) -> dict:
+        """CSV algorithm implementation."""
         parsed = []
         csv_files = kwargs.get("csv_files", [])
 
         for csv_file in csv_files:
             if os.path.isfile(csv_file):
                 # read csv file
-                with open(csv_file, "r") as f:
+                with open(csv_file) as f:
                     reader = csv.reader(f, delimiter=";")
                     for row in reader:
                         # add row to parsed list but skip first row (header)
@@ -29,7 +31,7 @@ class lpds_csv(Strategy):
         return parsed
 
     def process_algorithm(self, source, **kwargs) -> dict:
-        """Process source data and return dict"""
+        """Process source data and return dict."""
         collected_labels = {}
         label_prefix = kwargs.get("label_prefix", None)
         for row in source:

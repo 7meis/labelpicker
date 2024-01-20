@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# -*- encoding: utf-8; py-indent-offset: 4 -*-
 
 # SPDX-FileCopyrightText: © 2023 PL Automation Monitoring GmbH <pl@automation-monitoring.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # This file is part of the Checkmk Labelpicker project (https://labelpicker.mk)
 
+"""This class handles all interactions with checkmk."""
 
 import requests
 import json
@@ -12,15 +12,15 @@ import os
 
 
 class CMKInstance:
-    """Interact with checkmk instance"""
+    """Interact with checkmk instance."""
 
     def __init__(self, url=None, username="automation", password=None):
         """Initialize a REST-API instance. URL, User and Secret can be automatically taken from local site if running as site user.
 
         Args:
-            site_url: the site URL
-            api_user: username of automation user account
-            api_secret: automation secret
+            url: the site URL
+            username: username of automation user account
+            password: automation secret
 
         Returns:
             instance of Checkmk REST-API
@@ -31,7 +31,7 @@ class CMKInstance:
             # use local site_url from $HOME/etc/apache/conf.d/listen-port.conf
             omd_root = os.environ["OMD_ROOT"]
             omd_site = os.environ["OMD_SITE"]
-            f = open(f"{omd_root}/etc/apache/listen-port.conf", "r").readlines()
+            f = open(f"{omd_root}/etc/apache/listen-port.conf").readlines()
             for line in f:
                 if line.startswith("Listen"):
                     cmk_local_apache = line.split(" ")[1].strip()
@@ -56,8 +56,9 @@ class CMKInstance:
 
     def _get_automation_secret(self, username="automation"):
         """Get automation secret for the given user.
-        Default user is automation"""
 
+        Default user is automation
+        """
         omd_root = os.environ["OMD_ROOT"]
 
         # If automationsecret file for user exists, read credentials from there
@@ -103,10 +104,11 @@ class CMKInstance:
         return self._request_url("POST", endpoint, data, etag)
 
     def activate(self, sites=[], force=False):
-        """Activates pending changes
+        """Activates pending changes.
 
         Args:
             sites: On which sites the configuration shall be activated.
+            force: Will also activate foreign changes.
             An empty list means all sites which have pending changes.
 
         """
@@ -148,7 +150,7 @@ class CMKInstance:
         return hosts
 
     def get_host(self, hostname):
-        """Get current host configuration
+        """Get current host configuration.
 
         Args:
             hostname: cmk hostname
@@ -165,7 +167,7 @@ class CMKInstance:
 
     # Etag identifies the current state of the object in checkmk
     def get_etag(self, hostname):
-        """Get current etag value for host"""
+        """Get current etag value for host."""
         data, resp = self._get_url(
             f"objects/host_config/{hostname}", data={"effective_attributes": "false"}
         )
@@ -182,16 +184,15 @@ class CMKInstance:
             hostname: name of the host
             etag: (optional) etag value, if not provided the host will be
             looked up first using get_host().
-
-            update_attr: Just update the hosts attributes with these
-            attributes. The previously set attributes will not be touched.
+            set_attr: All hosts with new attributes to set.
+            update_attr: Just update the hosts attributes with these.
+            unset_attr: The previously set attributes will not be touched.
 
         Returns:
             (data, etag)
             data: host's data
             etag: current etag value
         """
-
         if set_attr:
             data = {"attributes": set_attr}
         elif update_attr:
@@ -211,12 +212,12 @@ class CMKInstance:
         resp.raise_for_status()
 
     def host_exists(self, hostname):
-        """Check if host exists"""
+        """Check if host exists."""
         host = self.get_host(hostname)
         return host
 
     def get_labels(self, hostname, object="host"):
-        """Get currently defined labels of a host or service object from checkmk"""
+        """Get currently defined labels of a host or service object from checkmk."""
         if object == "host":
             host = self.get_host(hostname)
             labels = host["extensions"]["attributes"].get("labels", {})
@@ -226,15 +227,13 @@ class CMKInstance:
         return labels
 
     def set_host_labels(self, hostname, labels):
-        """Set host labels on checkmk"""
+        """Set host labels on checkmk."""
         self.edit_host(hostname, update_attr={"labels": labels})
 
     def update_labels(
         self, orig_labels, labels, label_prefix="hwsw/", enforce_cleanup=False
     ) -> dict:
-        """Compare current / original labels
-        with new labels and update if necessary"""
-
+        """Compare current / original labels with new labels and update if necessary."""
         updated_labels = orig_labels.copy()
         # {'hwsw/os_vendor': 'Ubuntu', 'hwsw/os_version': '20.04', 'test': 'xy'}
         # Cleanup: remove all labels with known prefix from original labels
